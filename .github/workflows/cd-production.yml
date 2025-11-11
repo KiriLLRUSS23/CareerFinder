@@ -1,0 +1,14 @@
+# .github/workflows/cd-production.yml
+name: CD Production
+
+on:
+  push:
+    branches: [ main ]
+    # Только с тегом [deploy]
+    if: contains(github.event.head_commit.message, '[deploy]')
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Production deploy skipped (use [deploy] in commit message)"

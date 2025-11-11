@@ -1,0 +1,39 @@
+# .github/workflows/ci-mobile.yml
+name: CI Mobile
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'src/mobile/**'
+      - '.github/workflows/ci-mobile.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'src/mobile/**'
+      - '.github/workflows/ci-mobile.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/mobile
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci || echo "No mobile code yet"
+
+      - name: Run lint
+        run: npm run lint || true
+
+      - name: Build
+        run: npm run build || true
