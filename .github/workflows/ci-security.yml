@@ -1,40 +1,41 @@
-# .github/workflows/ci-security.yml
 name: CI Security
 
 on:
   push:
-    branches: [ main, develop ]
+    branches:
+      - main
   pull_request:
-    branches: [ main, develop ]
+    branches:
+      - main
 
 jobs:
   security:
+    name: Run Snyk Security Scan
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: 20
 
-      - name: Install backend deps
-        run: cd src/backend && npm ci
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
 
-      - name: Snyk Monitor
-        uses: snyk/actions/node@master
+      - name: Install Snyk CLI
+        uses: snyk/actions/setup@v2
+        with:
+          snyk-version: 'latest'
+
+      - name: Run Snyk monitor (organization kirillruss23)
+        run: snyk monitor --org="kirillruss23"
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          command: monitor
-          args: --project-name=CareerFinder-Backend --org=kirillruss23
 
-      - name: CodeQL Analysis
-        uses: github/codeql-action/init@v3
-        with:
-          languages: javascript,typescript
-
-      - name: CodeQL Analyze
-        uses: github/codeql-action/analyze@v3
+      - name: Run Snyk test
+        run: snyk test --severity-threshold=medium --org="kirillruss23"
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
