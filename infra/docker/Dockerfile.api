@@ -1,0 +1,46 @@
+# Build stage
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Install dependencies
+COPY package*.json ./
+RUN npm ci --only=production
+
+# Copy backend source code
+COPY src/backend ./src/backend
+COPY tsconfig.json ./
+COPY nx.json ./
+
+# Build the application
+RUN npm run build:backend
+
+# Production stage
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install production dependencies only
+COPY package*.json ./
+RUN npm ci --only=production
+
+# Copy built application from builder stage
+COPY --from=builder /app/dist/backend ./dist/backend
+COPY --from=builder /app/src/backend/package.json ./src/backend/
+COPY --from=builder /app/src/backend/node_modules ./src/backend/node_modules
+
+# Copy configuration files
+COPY infra/docker/.env.production ./.env
+
+# Security hardening
+RUN addgroup -g 1001 -S nodejs &&     adduser -S nextjs -u 1001 &&     chown -R nextjs:nodejs /app &&     chmod 755 /app
+
+USER nextjs
+
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3   CMD curl -f http://localhost:3000/health || exit 1
+
+# Start the application
+CMD ["node", "dist/backend/main.js"]
