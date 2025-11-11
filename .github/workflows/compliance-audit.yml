@@ -2,18 +2,56 @@ name: Compliance Audit
 
 on:
   push:
-    branches: [ main ]
-  workflow_dispatch:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: compliance-audit-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   audit:
+    name: Run Compliance & Snyk Audit
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - name: FSTEC Compliance
-        run: echo "FSTEC compliance validated"
-      - name: ФЗ-152 Compliance
-        run: echo "ФЗ-152 compliance validated"
-      - name: Carbon Footprint
-        run: echo "Carbon impact within limits"
-      
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prevent running on manual CI reruns
+        if: ${{ !contains(github.event.head_commit.message || '', 'chore: trigger CI rerun') }}
+        run: echo "Proceeding with compliance audit..."
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Install Snyk CLI
+        uses: snyk/actions/setup@v2
+        with:
+          snyk-version: 'latest'
+
+      - name: Run Snyk monitor (kirillruss23)
+        run: snyk monitor --org="kirillruss23"
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Run Snyk test
+        run: snyk test --org="kirillruss23" --severity-threshold=low
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Save audit artifacts (optional)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: snyk-output
+          path: |
+            .snyk*
