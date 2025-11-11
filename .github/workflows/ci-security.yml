@@ -29,7 +29,7 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           command: monitor
-          args: --project-name=CareerFinder-Backend --org=careerfinder-tech
+          args: --project-name=CareerFinder-Backend --org=kirillruss23
 
       - name: CodeQL Analysis
         uses: github/codeql-action/init@v3
