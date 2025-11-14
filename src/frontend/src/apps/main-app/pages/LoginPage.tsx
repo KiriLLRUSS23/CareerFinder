@@ -1,117 +1,45 @@
-import React, { useState } from 'react';
-import {
-  Box,
-  Container,
-  Card,
-  TextField,
-  Button,
-  Typography,
-  Alert,
-  CircularProgress,
-} from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useAuth } from '@core/hooks/useAuth';
-
-const loginSchema = z.object({
-  email: z.string().email('Некорректный email'),
-  password: z.string().min(6, 'Пароль должен содержать минимум 6 символов'),
-});
-
-type LoginFormData = z.infer<typeof loginSchema>;
-
-export const LoginPage: React.FC = () => {
-  const navigate = useNavigate();
-  const { login } = useAuth();
-  const [error, setError] = useState<string>('');
-  const [loading, setLoading] = useState(false);
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
-  });
-
-  const onSubmit = async (data: LoginFormData) => {
-    setLoading(true);
-    setError('');
-    try {
-      await login(data.email, data.password);
-    } catch (err) {
-      setError('Ошибка при входе. Проверьте учетные данные.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
+export function LoginPage() {
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh',
-        backgroundColor: '#f5f5f5',
-      }}
-    >
-      <Container maxWidth="sm">
-        <Card sx={{ p: 4 }}>
-          <Typography variant="h4" component="h1" sx={{ mb: 3, textAlign: 'center', fontWeight: 700 }}>
-            CareerFinder
-          </Typography>
-
-          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <TextField
-              fullWidth
-              label="Email"
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Вход в CareerFinder
+          </h2>
+        </div>
+        <form className="mt-8 space-y-6">
+          <div>
+            <label htmlFor="email" className="sr-only">Email</label>
+            <input
+              id="email"
+              name="email"
               type="email"
-              {...register('email')}
-              error={!!errors.email}
-              helperText={errors.email?.message}
-              margin="normal"
-              disabled={loading}
+              required
+              className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+              placeholder="Email"
             />
-
-            <TextField
-              fullWidth
-              label="Пароль"
+          </div>
+          <div>
+            <label htmlFor="password" className="sr-only">Пароль</label>
+            <input
+              id="password"
+              name="password"
               type="password"
-              {...register('password')}
-              error={!!errors.password}
-              helperText={errors.password?.message}
-              margin="normal"
-              disabled={loading}
+              required
+              className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+              placeholder="Пароль"
             />
-
-            <Button
-              fullWidth
-              variant="contained"
+          </div>
+          <div>
+            <button
               type="submit"
-              sx={{ mt: 3 }}
-              disabled={loading}
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
-              {loading ? <CircularProgress size={24} /> : 'Войти'}
-            </Button>
-          </form>
-
-          <Typography variant="body2" sx={{ mt: 2, textAlign: 'center' }}>
-            Нет аккаунта?{' '}
-            <Button
-              color="primary"
-              size="small"
-              onClick={() => navigate('/register')}
-              sx={{ textTransform: 'none' }}
-            >
-              Зарегистрироваться
-            </Button>
-          </Typography>
-        </Card>
-      </Container>
-    </Box>
+              Войти
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
-};
+}
