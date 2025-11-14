@@ -1,0 +1,29 @@
+{
+  "app": {
+    "title": "CareerFinder",
+    "description": "HR Экосистема для Поволжья"
+  },
+  "navigation": {
+    "dashboard": "Панель управления",
+    "vacancies": "Вакансии",
+    "resumes": "Резюме",
+    "candidates": "Кандидаты",
+    "analytics": "Аналитика",
+    "settings": "Настройки"
+  },
+  "common": {
+    "loading": "Загрузка...",
+    "error": "Произошла ошибка",
+    "success": "Успешно",
+    "warning": "Внимание",
+    "info": "Информация",
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "delete": "Удалить",
+    "edit": "Редактировать",
+    "add": "Добавить",
+    "search": "Поиск",
+    "filter": "Фильтр",
+    "sort": "Сортировка"
+  }
+}
